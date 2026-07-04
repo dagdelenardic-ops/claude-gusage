@@ -1,7 +1,13 @@
-.PHONY: build app zip dmg release-artifacts verify-release install clean
+.PHONY: build app zip dmg release release-artifacts verify-release install clean
 
 build:
 	cd macos && swift build -c release
+
+# Cut a signed, auto-updatable release and push the Sparkle feed.
+# Usage: make release VERSION=1.1.2
+release:
+	@test -n "$(VERSION)" || (echo "Usage: make release VERSION=1.1.2" && exit 1)
+	bash macos/scripts/release.sh $(VERSION)
 
 app:
 	bash macos/scripts/build.sh
