@@ -91,6 +91,14 @@ make clean      # remove build artifacts
 
 Run the tests with `cd macos && swift test` (needs a full Xcode toolchain for `XCTest`).
 
+### Releasing
+
+```sh
+make release VERSION=1.1.2
+```
+
+Builds a signed, auto‑updating `.zip` + `.dmg`, regenerates `appcast.xml`, publishes the GitHub Release, and pushes the update feed. Installed copies then update themselves. Add a `macos/release-notes/v1.1.2.md` (one bullet per change) to control what users see in the update dialog — see [`macos/release-notes/`](macos/release-notes/).
+
 ## Credits
 
 Built on top of [**claude-usage-bar**](https://github.com/Blimp-Labs/claude-usage-bar) by **Krystian** (Blimp Labs), used under the BSD 2‑Clause License. This fork keeps the original author's copyright notice — see [`LICENSE`](LICENSE) — and adds the Claude Gusage rebrand, the black/white/red theme, the colour‑coded menu bar bar, and critical model‑limit notifications.

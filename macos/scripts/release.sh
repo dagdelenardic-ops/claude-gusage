@@ -51,17 +51,51 @@ APP_VERSION="$VERSION" bash "$SCRIPT_DIR/build.sh" --zip --dmg
 bash "$SCRIPT_DIR/verify-release.sh" "$MACOS_DIR/ClaudeUsageBar.zip"
 bash "$SCRIPT_DIR/verify-release.sh" "$MACOS_DIR/ClaudeUsageBar.dmg"
 
-# --- 2. Stage archives under friendly names + generate the appcast ------------
+# --- 2. Resolve release notes (env NOTES > release-notes/vX.md > git log) ------
+NOTES_FILE="$MACOS_DIR/release-notes/$TAG.md"
+if [[ -n "${NOTES:-}" ]]; then
+    NOTES_TEXT="$NOTES"
+elif [[ -f "$NOTES_FILE" ]]; then
+    NOTES_TEXT="$(cat "$NOTES_FILE")"
+else
+    git -C "$REPO_DIR" fetch --tags --quiet origin 2>/dev/null || true
+    PREV_TAG="$(git -C "$REPO_DIR" tag --list 'v*' --sort=-v:refname | grep -vx "$TAG" | head -1 || true)"
+    NOTES_TEXT="$(git -C "$REPO_DIR" log --pretty='- %s' ${PREV_TAG:+"$PREV_TAG"..}HEAD 2>/dev/null \
+        | grep -viE 'update Sparkle appcast|^- Release v' | head -20 || true)"
+    [[ -n "$NOTES_TEXT" ]] || NOTES_TEXT="- Maintenance and small improvements."
+fi
+echo "==> Release notes:"; printf '%s\n' "$NOTES_TEXT" | sed 's/^/    /'
+
+# Markdown body for the GitHub Release page.
+NOTES_MD="$(printf '%s\n\n---\nDownload **%s**, drag it into Applications, then right-click → Open on first launch. Feed builds update themselves.' "$NOTES_TEXT" "$ASSET_DMG")"
+
+# Plain HTML (no DOCTYPE/body) so generate_appcast embeds it as CDATA notes
+# shown inside the Sparkle update dialog.
+notes_to_html() {
+    printf '<h2>Claude Gusage %s</h2>\n<ul>\n' "$VERSION"
+    while IFS= read -r line; do
+        line="${line#"${line%%[![:space:]]*}"}"          # trim leading whitespace
+        case "$line" in '- '*) line="${line#- }";; '* '*) line="${line#\* }";; '• '*) line="${line#• }";; esac
+        [[ -z "$line" ]] && continue
+        line="${line//&/&amp;}"; line="${line//</&lt;}"; line="${line//>/&gt;}"
+        printf '  <li>%s</li>\n' "$line"
+    done <<< "$NOTES_TEXT"
+    printf '</ul>\n'
+}
+
+# --- 3. Stage archives + generate the signed appcast (with notes) -------------
 STAGE="$MACOS_DIR/dist"
 rm -rf "$STAGE" && mkdir -p "$STAGE"
 cp "$MACOS_DIR/ClaudeUsageBar.zip" "$STAGE/$ASSET_ZIP"
 cp "$MACOS_DIR/ClaudeUsageBar.dmg" "$STAGE/$ASSET_DMG"
 
-# generate_appcast only signs archives it finds in the folder; keep the DMG out
-# of the signing folder so it doesn't produce a second enclosure.
+# generate_appcast signs every archive it finds in the folder; keep the DMG out
+# so it doesn't produce a second enclosure. The .html shares the zip's basename
+# so it becomes that item's release notes.
 APPCAST_SRC="$STAGE/appcast-src"
 mkdir -p "$APPCAST_SRC"
 cp "$STAGE/$ASSET_ZIP" "$APPCAST_SRC/$ASSET_ZIP"
+notes_to_html > "$APPCAST_SRC/${ASSET_ZIP%.zip}.html"
 
 "$BIN/generate_appcast" \
     --ed-key-file "$KEY_FILE" \
@@ -72,15 +106,15 @@ cp "$STAGE/$ASSET_ZIP" "$APPCAST_SRC/$ASSET_ZIP"
 echo "==> appcast.xml written:"
 grep -E "sparkle:version|enclosure url" "$REPO_DIR/appcast.xml" | tail -4
 
-# --- 3. Publish the GitHub Release (zip is the Sparkle enclosure) --------------
+# --- 4. Publish the GitHub Release (zip is the Sparkle enclosure) --------------
 gh release create "$TAG" \
     "$STAGE/$ASSET_DMG" \
     "$STAGE/$ASSET_ZIP" \
     --repo "$REPO_SLUG" \
     --title "Claude Gusage $VERSION" \
-    --notes "Auto-updating build. Download **$ASSET_DMG**, drag it into Applications, then right-click → Open on first launch. Previously installed feed builds update themselves."
+    --notes "$NOTES_MD"
 
-# --- 4. Push the updated feed so installed copies can see it -------------------
+# --- 5. Push the updated feed so installed copies can see it -------------------
 git -C "$REPO_DIR" add appcast.xml
 git -C "$REPO_DIR" commit -m "Release $TAG: update Sparkle appcast"
 git -C "$REPO_DIR" push origin main
