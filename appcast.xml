@@ -3,6 +3,19 @@
     <channel>
         <title>ClaudeUsageBar</title>
         <item>
+            <title>1.1.2</title>
+            <pubDate>Sat, 04 Jul 2026 14:37:57 +0300</pubDate>
+            <sparkle:version>1001002</sparkle:version>
+            <sparkle:shortVersionString>1.1.2</sparkle:shortVersionString>
+            <sparkle:minimumSystemVersion>14.0</sparkle:minimumSystemVersion>
+            <description><![CDATA[<h2>Claude Gusage 1.1.2</h2>
+<ul>
+  <li>Update notes now appear in the in-app update dialog</li>
+</ul>
+]]></description>
+            <enclosure url="https://github.com/dagdelenardic-ops/claude-gusage/releases/download/v1.1.2/ClaudeGusage.zip" length="1431610" type="application/octet-stream" sparkle:edSignature="1tKyzRqvkGzp/0IAgd6zHCp6j/YrGdVQyk89QXrvNwjH/29iUxyhP8H6/qSvNLyc0Zrnp4idgv3DkzVvhRI3Dg=="/>
+        </item>
+        <item>
             <title>1.1.1</title>
             <pubDate>Sat, 04 Jul 2026 14:30:13 +0300</pubDate>
             <sparkle:version>1001001</sparkle:version>
