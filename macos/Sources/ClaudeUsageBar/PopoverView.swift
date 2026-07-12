@@ -5,6 +5,7 @@ struct PopoverView: View {
     @ObservedObject var historyService: UsageHistoryService
     @ObservedObject var notificationService: NotificationService
     @ObservedObject var appUpdater: AppUpdater
+    @ObservedObject var tokenUsageService: TokenUsageService
     @AppStorage("setupComplete") private var setupComplete = false
 
     var body: some View {
@@ -141,6 +142,11 @@ struct PopoverView: View {
                 ExtraUsageRow(extra: extra)
             }
 
+            if tokenUsageService.hasData {
+                Divider()
+                TokenUsageView(service: tokenUsageService)
+            }
+
             Divider()
             UsageChartView(historyService: historyService)
 
@@ -191,6 +197,7 @@ struct PopoverView: View {
                     .foregroundStyle(.secondary)
             }
         }
+        .onAppear { Task { await tokenUsageService.refresh() } }
     }
 
     /// Model/surface-scoped limits (e.g. Fable) that have no dedicated bucket.

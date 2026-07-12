@@ -6,6 +6,7 @@ struct ClaudeUsageBarApp: App {
     @StateObject private var historyService = UsageHistoryService()
     @StateObject private var notificationService = NotificationService()
     @StateObject private var appUpdater = AppUpdater()
+    @StateObject private var tokenUsageService = TokenUsageService()
 
     init() {
         DispatchQueue.main.asyncAfter(deadline: .now() + 0.5) {
@@ -26,7 +27,8 @@ struct ClaudeUsageBarApp: App {
                 service: service,
                 historyService: historyService,
                 notificationService: notificationService,
-                appUpdater: appUpdater
+                appUpdater: appUpdater,
+                tokenUsageService: tokenUsageService
             )
         } label: {
             Image(nsImage: service.isAuthenticated
@@ -42,6 +44,10 @@ struct ClaudeUsageBarApp: App {
                     service.historyService = historyService
                     service.notificationService = notificationService
                     service.startPolling()
+                    Task { await tokenUsageService.refresh() }
+                }
+                .onChange(of: service.lastUpdated) { _, _ in
+                    Task { await tokenUsageService.refresh() }
                 }
         }
         .menuBarExtraStyle(.window)
