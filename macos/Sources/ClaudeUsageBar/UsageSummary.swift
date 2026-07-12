@@ -82,3 +82,13 @@ struct UsageSummary: Equatable {
         )
     }
 }
+
+enum TokenFormat {
+    static func compact(_ n: Int) -> String {
+        switch n {
+        case 1_000_000...: return String(format: "%.1fM", Double(n) / 1_000_000)
+        case 1_000...:     return String(format: "%.1fK", Double(n) / 1_000)
+        default:           return "\(n)"
+        }
+    }
+}
