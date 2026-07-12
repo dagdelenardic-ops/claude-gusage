@@ -18,3 +18,12 @@ struct TokenCounts: Codable, Equatable {
         )
     }
 }
+
+/// One deduplicated assistant message's token usage, parsed from a JSONL line.
+struct UsageRecord: Equatable {
+    let timestamp: Date
+    let model: String
+    let project: String    // the transcript's top-level `cwd`
+    let counts: TokenCounts
+    let dedupKey: String    // "\(message.id)|\(requestId)"
+}
