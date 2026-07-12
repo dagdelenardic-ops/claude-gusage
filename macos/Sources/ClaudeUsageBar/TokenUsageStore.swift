@@ -29,3 +29,29 @@ struct TokenUsageStore: Codable, Equatable {
         return String(format: "%04d-%02d-%02d", c.year ?? 0, c.month ?? 0, c.day ?? 0)
     }
 }
+
+enum UsageRange: String, CaseIterable, Identifiable {
+    case today, month, all
+    var id: String { rawValue }
+
+    var label: String {
+        switch self {
+        case .today: return "Bugün"
+        case .month: return "Bu ay"
+        case .all:   return "Tüm zamanlar"
+        }
+    }
+
+    /// True when a "yyyy-MM-dd" day-key falls inside this range relative to `now`.
+    func contains(dayKey: String, now: Date, calendar: Calendar = .current) -> Bool {
+        switch self {
+        case .all:
+            return true
+        case .today:
+            return dayKey == TokenUsageStore.dayKey(now, calendar: calendar)
+        case .month:
+            let c = calendar.dateComponents([.year, .month], from: now)
+            return dayKey.hasPrefix(String(format: "%04d-%02d-", c.year ?? 0, c.month ?? 0))
+        }
+    }
+}
