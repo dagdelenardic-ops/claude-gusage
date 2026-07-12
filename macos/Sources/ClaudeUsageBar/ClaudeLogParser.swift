@@ -46,8 +46,8 @@ enum ClaudeLogParser {
                 let raw = try? decoder.decode(RawLine.self, from: lineData),
                 raw.type == "assistant",
                 let message = raw.message,
-                let model = message.id != nil ? message.model : nil, // require id + model
                 let messageID = message.id,
+                let model = message.model,
                 let usage = message.usage,
                 let timestamp = UsageBucket.parseResetDate(from: raw.timestamp)
             else { return nil }
