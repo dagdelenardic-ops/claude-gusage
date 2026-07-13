@@ -49,6 +49,9 @@ struct TokenUsageView: View {
         Text("Notional — API pay-as-you-go fiyatıyla; abonelikte $0 ödersin.")
             .font(.caption2).foregroundStyle(.secondary)
 
+        sectionLabel("Trend")
+        TokenTrendView(service: service)
+
         if !summary.byModel.isEmpty {
             sectionLabel("Model")
             ForEach(summary.byModel) { m in
