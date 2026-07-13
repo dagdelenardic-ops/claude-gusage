@@ -69,7 +69,8 @@ final class UsageModelTests: XCTestCase {
             sevenDaySonnet: nil,
             claudeDesign: nil,
             dailyRoutineRuns: nil,
-            extraUsage: nil
+            extraUsage: nil,
+            limits: nil
         )
     }
 

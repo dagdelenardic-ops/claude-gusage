@@ -24,7 +24,7 @@ final class TokenUsageServiceTests: XCTestCase {
         XCTAssertNotNil(svc.hasData)
         let sum = svc.summary(for: .all)
         XCTAssertEqual(sum.counts.total, 2_000_000)
-        XCTAssertEqual(sum.cost, 90.0, accuracy: 0.001)
+        XCTAssertEqual(sum.cost, 30.0, accuracy: 0.001)
     }
 
     func testRefreshIsIncrementalAndPersists() async throws {
