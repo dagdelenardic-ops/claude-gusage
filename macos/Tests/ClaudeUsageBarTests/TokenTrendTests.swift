@@ -45,4 +45,31 @@ final class TokenTrendTests: XCTestCase {
         XCTAssertEqual(today.cost, 5.0, accuracy: 0.001) // fiyatsız model $'a katılmaz
         XCTAssertTrue(today.hasUnknownModel)
     }
+
+    func testWeekComparisonUsesCalendarWeekBoundary() {
+        var s = TokenUsageStore()
+        // 2026-07-15 Çarşamba; hafta Pzt 13 – Paz 19. Önceki hafta Pzt 6 – Paz 12.
+        s.ingest(rec("1", "2026-07-14T10:00:00Z", counts: TokenCounts(input: 1_000_000)), calendar: utc)  // bu hafta: $5
+        s.ingest(rec("2", "2026-07-12T10:00:00Z", counts: TokenCounts(input: 2_000_000)), calendar: utc)  // geçen hafta (Pazar): $10
+        s.ingest(rec("3", "2026-07-05T10:00:00Z", counts: TokenCounts(input: 8_000_000)), calendar: utc)  // 2 hafta önce: dahil değil
+        let now = UsageBucket.parseResetDate(from: "2026-07-15T12:00:00Z")!
+
+        let c = TokenTrend.weekComparison(from: s, now: now, calendar: utc, pricing: TokenPricing())
+        XCTAssertEqual(c.currentCost, 5.0, accuracy: 0.001)
+        XCTAssertEqual(c.previousCost, 10.0, accuracy: 0.001)
+        XCTAssertEqual(c.currentTokens, 1_000_000)
+        XCTAssertEqual(c.previousTokens, 2_000_000)
+        XCTAssertEqual(c.costDeltaRatio!, -0.5, accuracy: 0.001)
+    }
+
+    func testMonthComparisonAndNewPeriod() {
+        var s = TokenUsageStore()
+        s.ingest(rec("1", "2026-07-10T10:00:00Z", counts: TokenCounts(input: 1_000_000)), calendar: utc)  // Temmuz: $5
+        let now = UsageBucket.parseResetDate(from: "2026-07-15T12:00:00Z")!
+
+        let c = TokenTrend.monthComparison(from: s, now: now, calendar: utc, pricing: TokenPricing())
+        XCTAssertEqual(c.currentCost, 5.0, accuracy: 0.001)
+        XCTAssertEqual(c.previousCost, 0.0, accuracy: 0.001)  // Haziran boş
+        XCTAssertNil(c.costDeltaRatio)                         // önceki 0 → "yeni"
+    }
 }
