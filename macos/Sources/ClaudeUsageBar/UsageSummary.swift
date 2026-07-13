@@ -39,6 +39,8 @@ struct UsageSummary: Equatable {
     ) -> UsageSummary {
         var modelCounts: [String: TokenCounts] = [:]
         var projectCounts: [String: TokenCounts] = [:]
+        var projectCost: [String: Double] = [:]
+        var projectHasUnknown: Set<String> = []
         var total = TokenCounts()
 
         for (day, models) in store.buckets where range.contains(dayKey: day, now: now, calendar: calendar) {
@@ -46,6 +48,11 @@ struct UsageSummary: Equatable {
                 for (project, counts) in projects {
                     modelCounts[model, default: TokenCounts()] = modelCounts[model, default: TokenCounts()] + counts
                     projectCounts[project, default: TokenCounts()] = projectCounts[project, default: TokenCounts()] + counts
+                    if let c = pricing.cost(of: counts, model: model) {
+                        projectCost[project, default: 0] += c
+                    } else {
+                        projectHasUnknown.insert(project)
+                    }
                     total = total + counts
                 }
             }
@@ -67,10 +74,13 @@ struct UsageSummary: Equatable {
         }
 
         let byProject: [ProjectUsage] = projectCounts.map { project, counts in
-            // A project spans models; approximate its cost by summing each model's rate.
-            // Cheap path: leave project cost nil unless all its tokens map to known models.
-            return ProjectUsage(project: project, counts: counts, cost: nil)
-        }.sorted { $0.counts.total > $1.counts.total }
+            // Cost is nil if any of the project's tokens ran on an unpriced model,
+            // so the "?" behavior stays consistent with the model breakdown.
+            let c = projectHasUnknown.contains(project) ? nil : (projectCost[project] ?? 0)
+            return ProjectUsage(project: project, counts: counts, cost: c)
+        }.sorted { lhs, rhs in
+            ((lhs.cost ?? -1), lhs.counts.total) > ((rhs.cost ?? -1), rhs.counts.total)
+        }
 
         let inputSide = total.input + total.cacheWrite + total.cacheRead
         let ratio = inputSide > 0 ? Double(total.cacheRead) / Double(inputSide) : 0

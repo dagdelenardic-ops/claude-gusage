@@ -36,6 +36,19 @@ final class UsageSummaryTests: XCTestCase {
         XCTAssertEqual(Set(sum.byProject.map(\.project)), ["/A", "/B"])
     }
 
+    func testPerProjectCost() {
+        let now = UsageBucket.parseResetDate(from: "2026-07-12T12:00:00Z")!
+        let sum = UsageSummary.compute(from: store(), range: .today, now: now,
+                                       calendar: utc, pricing: TokenPricing())
+        let byProject = Dictionary(uniqueKeysWithValues: sum.byProject.map { ($0.project, $0.cost) })
+        // /A mixes opus with an unpriced model → cost must be nil ("?")
+        XCTAssertNil(byProject["/A"] ?? nil)
+        // /B is pure sonnet cache-read: 1M × $0.30/MTok
+        XCTAssertEqual((byProject["/B"] ?? nil)!, 0.30, accuracy: 0.001)
+        // Costed projects sort ahead of unknown-cost ones
+        XCTAssertEqual(sum.byProject.first?.project, "/B")
+    }
+
     func testCacheReadRatio() {
         let now = UsageBucket.parseResetDate(from: "2026-07-12T12:00:00Z")!
         let sum = UsageSummary.compute(from: store(), range: .today, now: now,
