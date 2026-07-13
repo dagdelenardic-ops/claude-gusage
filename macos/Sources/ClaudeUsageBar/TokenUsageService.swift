@@ -76,6 +76,19 @@ final class TokenUsageService: ObservableObject {
                              calendar: calendar, pricing: pricing)
     }
 
+    /// Daily series for the trend chart, oldest first, zero-filled.
+    func dailyTrend(days: Int, now: Date = Date()) -> [DailyUsage] {
+        TokenTrend.daily(from: store, days: days, now: now, calendar: calendar, pricing: pricing)
+    }
+
+    func weekComparison(now: Date = Date()) -> PeriodComparison {
+        TokenTrend.weekComparison(from: store, now: now, calendar: calendar, pricing: pricing)
+    }
+
+    func monthComparison(now: Date = Date()) -> PeriodComparison {
+        TokenTrend.monthComparison(from: store, now: now, calendar: calendar, pricing: pricing)
+    }
+
     /// Scan the projects dir, incrementally read new bytes, ingest, persist.
     func refresh() async {
         guard FileManager.default.fileExists(atPath: projectsDir.path) else {
