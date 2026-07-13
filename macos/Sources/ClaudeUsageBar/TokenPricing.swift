@@ -45,12 +45,15 @@ extension TokenPricing {
     /// cache-read ≈ 0.1× input (standard 5-minute cache multipliers).
     ///
     /// NOTE: verify these against current Anthropic pricing before each release.
-    /// Fable is intentionally omitted (no public list price) → treated as an
-    /// unknown model: its tokens still count, its cost shows "?".
+    /// Each family uses the current-generation list price (Anthropic list,
+    /// 2026-07): Opus 4.6–4.8 share $5/$25, Sonnet 5/4.6 share $3/$15
+    /// (Sonnet 5 intro discount ignored), Haiku 4.5 $1/$5, Fable 5 $10/$50.
+    /// Ids outside these families (e.g. "<synthetic>") stay unknown → "?".
     static let bundledTable: [String: ModelPrice] = [
-        "opus":   perMillion(input: 15,   output: 75),
-        "sonnet": perMillion(input: 3,    output: 15),
-        "haiku":  perMillion(input: 0.80, output: 4),
+        "opus":   perMillion(input: 5,  output: 25),
+        "sonnet": perMillion(input: 3,  output: 15),
+        "haiku":  perMillion(input: 1,  output: 5),
+        "fable":  perMillion(input: 10, output: 50),
     ]
 
     private static func perMillion(input: Double, output: Double) -> ModelPrice {

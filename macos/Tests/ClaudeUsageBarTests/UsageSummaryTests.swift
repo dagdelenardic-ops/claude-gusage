@@ -14,7 +14,7 @@ final class UsageSummaryTests: XCTestCase {
         }
         s.ingest(rec("1", "claude-opus-4-8", "/A", TokenCounts(input: 1_000_000, output: 1_000_000)), calendar: utc)
         s.ingest(rec("2", "claude-sonnet-5", "/B", TokenCounts(input: 0, cacheRead: 1_000_000)), calendar: utc)
-        s.ingest(rec("3", "claude-fable-5", "/A", TokenCounts(input: 500)), calendar: utc) // unknown price
+        s.ingest(rec("3", "<synthetic>", "/A", TokenCounts(input: 500)), calendar: utc) // unknown price
         return s
     }
 
@@ -23,9 +23,9 @@ final class UsageSummaryTests: XCTestCase {
         let sum = UsageSummary.compute(from: store(), range: .today, now: now,
                                        calendar: utc, pricing: TokenPricing())
         XCTAssertEqual(sum.counts.total, 1_000_000 + 1_000_000 + 1_000_000 + 500)
-        XCTAssertTrue(sum.hasUnknownModel)          // fable priced nil
-        // opus 90 + sonnet cacheRead 0.30; fable contributes nothing to cost
-        XCTAssertEqual(sum.cost, 90.0 + 0.30, accuracy: 0.001)
+        XCTAssertTrue(sum.hasUnknownModel)          // "<synthetic>" priced nil
+        // opus 30 + sonnet cacheRead 0.30; the unknown model contributes nothing to cost
+        XCTAssertEqual(sum.cost, 30.0 + 0.30, accuracy: 0.001)
     }
 
     func testSummaryBreakdownsSortedByCostThenTokens() {

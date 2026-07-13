@@ -14,12 +14,19 @@ final class TokenPricingTests: XCTestCase {
     }
 
     func testCostForKnownModel() {
-        // opus: $15/MTok input, $75/MTok output → per-token 15e-6, 75e-6
+        // opus: $5/MTok input, $25/MTok output → per-token 5e-6, 25e-6
         let pricing = TokenPricing()
         let counts = TokenCounts(input: 1_000_000, output: 1_000_000, cacheWrite: 0, cacheRead: 0)
         let cost = pricing.cost(of: counts, model: "claude-opus-4-8")
         XCTAssertNotNil(cost)
-        XCTAssertEqual(cost!, 90.0, accuracy: 0.0001) // 15 + 75
+        XCTAssertEqual(cost!, 30.0, accuracy: 0.0001) // 5 + 25
+    }
+
+    func testCostForFable() {
+        // fable: $10/MTok input, $50/MTok output
+        let pricing = TokenPricing()
+        let counts = TokenCounts(input: 1_000_000, output: 1_000_000, cacheWrite: 0, cacheRead: 0)
+        XCTAssertEqual(pricing.cost(of: counts, model: "claude-fable-5")!, 60.0, accuracy: 0.0001)
     }
 
     func testCostCacheMultipliers() {
