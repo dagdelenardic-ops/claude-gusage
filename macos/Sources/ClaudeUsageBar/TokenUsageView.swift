@@ -14,7 +14,7 @@ struct TokenUsageView: View {
                 HStack(spacing: 6) {
                     Image(systemName: expanded ? "chevron.down" : "chevron.right")
                         .font(.caption2).foregroundStyle(.secondary)
-                    Text("Token & Maliyet").font(.subheadline)
+                    Text("Tokens & Cost").font(.subheadline)
                     Spacer()
                     Text(headline(monthly))
                         .font(.caption).monospacedDigit().foregroundStyle(.secondary)
@@ -28,7 +28,7 @@ struct TokenUsageView: View {
 
     private func headline(_ s: UsageSummary) -> String {
         let dollars = s.hasUnknownModel ? "~\(ExtraUsage.formatUSD(s.cost))" : ExtraUsage.formatUSD(s.cost)
-        return "Bu ay \(dollars) · \(TokenFormat.compact(s.counts.total)) tok"
+        return "This month \(dollars) · \(TokenFormat.compact(s.counts.total)) tok"
     }
 
     @ViewBuilder private var expandedBody: some View {
@@ -46,7 +46,7 @@ struct TokenUsageView: View {
             Text("\(TokenFormat.compact(summary.counts.total)) tok")
                 .font(.caption).foregroundStyle(.secondary).monospacedDigit()
         }
-        Text("Notional — API pay-as-you-go fiyatıyla; abonelikte $0 ödersin.")
+        Text("Notional — at API pay-as-you-go pricing; on a subscription you pay $0.")
             .font(.caption2).foregroundStyle(.secondary)
 
         sectionLabel("Trend")
@@ -62,7 +62,7 @@ struct TokenUsageView: View {
         }
 
         if !summary.byProject.isEmpty {
-            sectionLabel("Proje")
+            sectionLabel("Projects")
             ScrollView {
                 VStack(spacing: 4) {
                     ForEach(summary.byProject.prefix(8)) { p in
@@ -77,13 +77,13 @@ struct TokenUsageView: View {
 
         sectionLabel("Cache")
         HStack {
-            Text("Cache-read oranı").font(.caption)
+            Text("Cache-read ratio").font(.caption)
             Spacer()
             Text("\(Int((summary.cacheReadRatio * 100).rounded()))%")
                 .font(.caption).monospacedDigit()
         }
         if summary.cacheSavings > 0 {
-            Text("~\(ExtraUsage.formatUSD(summary.cacheSavings)) tasarruf (cache sayesinde)")
+            Text("~\(ExtraUsage.formatUSD(summary.cacheSavings)) saved thanks to caching")
                 .font(.caption2).foregroundStyle(.secondary)
         }
     }

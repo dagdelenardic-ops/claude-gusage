@@ -10,13 +10,13 @@ struct TokenTrendView: View {
         let series = service.dailyTrend(days: days)
         VStack(alignment: .leading, spacing: 6) {
             Picker("", selection: $days) {
-                Text("7g").tag(7)
-                Text("30g").tag(30)
+                Text("7d").tag(7)
+                Text("30d").tag(30)
             }
             .pickerStyle(.segmented).labelsHidden()
 
             if series.allSatisfy({ $0.counts.total == 0 }) {
-                Text("Henüz trend verisi yok.")
+                Text("No trend data yet.")
                     .font(.caption).foregroundStyle(.secondary)
                     .frame(maxWidth: .infinity, minHeight: 80, alignment: .center)
             } else {
@@ -25,8 +25,8 @@ struct TokenTrendView: View {
                     .font(.caption2).foregroundStyle(.secondary).monospacedDigit()
             }
 
-            comparisonRow(label: "Bu hafta", c: service.weekComparison())
-            comparisonRow(label: "Bu ay", c: service.monthComparison())
+            comparisonRow(label: "This week", c: service.weekComparison())
+            comparisonRow(label: "This month", c: service.monthComparison())
         }
     }
 
@@ -41,8 +41,8 @@ struct TokenTrendView: View {
     private func chart(_ series: [DailyUsage]) -> some View {
         Chart(series) { day in
             BarMark(
-                x: .value("Gün", day.date, unit: .day),
-                y: .value("Maliyet", day.cost)
+                x: .value("Day", day.date, unit: .day),
+                y: .value("Cost", day.cost)
             )
             .foregroundStyle(day.day == hoveredDay?.day ? Theme.accentStrong : Theme.accent)
         }
@@ -71,7 +71,7 @@ struct TokenTrendView: View {
         HStack(spacing: 4) {
             Text(label).font(.caption)
             Spacer()
-            Text("\(ExtraUsage.formatUSD(c.currentCost)) · önceki \(ExtraUsage.formatUSD(c.previousCost))")
+            Text("\(ExtraUsage.formatUSD(c.currentCost)) · prev \(ExtraUsage.formatUSD(c.previousCost))")
                 .font(.caption).foregroundStyle(.secondary).monospacedDigit()
             deltaBadge(c)
         }
@@ -83,7 +83,7 @@ struct TokenTrendView: View {
                 .font(.caption2).monospacedDigit()
                 .foregroundStyle(r >= 0 ? Theme.accentStrong : .secondary)
         } else if c.currentCost > 0 {
-            Text("yeni").font(.caption2).foregroundStyle(.secondary)
+            Text("new").font(.caption2).foregroundStyle(.secondary)
         }
     }
 }

@@ -3,7 +3,7 @@ import SwiftUI
 /// Claude Gusage visual identity: **Black · White · Red**.
 ///
 /// A neutral monochrome base (system `.primary`/`.secondary`, which adapt to
-/// light and dark automatically) with red accents — the "kırmızı dokunuşlar".
+/// light and dark automatically) with red accent touches.
 enum Theme {
     /// Primary brand red — the active tint, header accent, and critical state.
     static let accent = Color(red: 0.84, green: 0.13, blue: 0.16)

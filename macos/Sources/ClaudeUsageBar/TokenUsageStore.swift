@@ -36,9 +36,9 @@ enum UsageRange: String, CaseIterable, Identifiable {
 
     var label: String {
         switch self {
-        case .today: return "Bugün"
-        case .month: return "Bu ay"
-        case .all:   return "Tüm zamanlar"
+        case .today: return "Today"
+        case .month: return "This month"
+        case .all:   return "All time"
         }
     }
 
