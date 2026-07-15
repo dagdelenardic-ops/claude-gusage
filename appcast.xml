@@ -3,6 +3,23 @@
     <channel>
         <title>ClaudeUsageBar</title>
         <item>
+            <title>1.2.0</title>
+            <pubDate>Wed, 15 Jul 2026 14:12:57 +0300</pubDate>
+            <sparkle:version>1002000</sparkle:version>
+            <sparkle:shortVersionString>1.2.0</sparkle:shortVersionString>
+            <sparkle:minimumSystemVersion>14.0</sparkle:minimumSystemVersion>
+            <description><![CDATA[<h2>Claude Gusage 1.2.0</h2>
+<ul>
+  <li>New Tokens &amp; Cost panel: notional API cost, token totals, per-model and per-project breakdown</li>
+  <li>Daily trend bar chart (7/30 days) with hover details</li>
+  <li>Week and month comparisons vs the previous period</li>
+  <li>Cache-read ratio and estimated cache savings</li>
+  <li>Fully English UI</li>
+</ul>
+]]></description>
+            <enclosure url="https://github.com/dagdelenardic-ops/claude-gusage/releases/download/v1.2.0/ClaudeGusage.zip" length="1459697" type="application/octet-stream" sparkle:edSignature="MGMUUogzz/WHNhBMNheWlxH7uKmkSKoSMZ9sFM6i9Tp6OtMzcyVdtpZVEHhR8S4lgQWPCYTlaBQ8k2blKNr5Bw=="/>
+        </item>
+        <item>
             <title>1.1.2</title>
             <pubDate>Sat, 04 Jul 2026 14:37:57 +0300</pubDate>
             <sparkle:version>1001002</sparkle:version>
